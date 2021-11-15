@@ -1,7 +1,7 @@
 import DragObject from './components/DrugObject';
 import logo from './logo.svg';
 import './App.css';
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo, useCallback } from 'react';
 import letter from './assets/letter-17347.json';
 
 function App() {
@@ -16,6 +16,10 @@ function App() {
             callable.bind(target);
         }
     };
+    const btnClick = useCallback((e, payload) => {
+        const event = new CustomEvent('click-a', {detail: {target: e.target, ...payload}})
+        e.target.parent.dispatchEvent()
+    }, [modules]);
     const modules = useMemo(() => {
         return letter.modules.map(
             (module, idx) => {
