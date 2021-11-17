@@ -5,8 +5,19 @@ module.exports = {
     mode: 'development',
     output: {
         path: path.resolve(__dirname, 'build'),
+        chunkFilename: '[id].js',
         filename: 'app.js',
-        publicPath: './'
+        publicPath: '',
+        globalObject: 'this',
+    },
+    optimization: {
+        minimize: false,
+        splitChunks = {
+            cacheGroups: {
+                default: false,
+            },
+        },
+        runtimeChunk: false,
     },
     module: {
         rules: [{

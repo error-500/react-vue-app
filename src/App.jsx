@@ -1,63 +1,32 @@
-import DragObject from './components/DrugObject';
-import logo from './logo.svg';
+import React, { useCallback, useEffect, useState } from 'react';
 import './App.css';
-import { useEffect, useRef, useMemo, useCallback } from 'react';
-import letter from './assets/letter-17347.json';
+import { ConstructorView } from './views/ConstructorView';
 
-function App() {
-    const vueApp = useRef(null);
-    console.log('App letteros load letter:', letter);
-    const dragbleData = {
-        name: 'data object for drug',
-        payload: (data, target) => {
-            const callable = function () {
-                console.log(`Druged payload ${data} on:`, this);
-            };
-            callable.bind(target);
-        }
-    };
-    const btnClick = useCallback((e, payload) => {
-        const event = new CustomEvent('click-a', {detail: {target: e.target, ...payload}})
-        e.target.parent.dispatchEvent()
-    }, [modules]);
-    const modules = useMemo(() => {
-        return letter.modules.map(
-            (module, idx) => {
-                console.log('Module:', module);
-                return (
-                    <letteros-module key={`module-${idx}`} raw-code={module.rawCode.rawHtml}>
-                        <div slot="module-menu">
-                            <button>A</button>
-                            <button>P</button>
-                        </div>
-                        <div slot="module-editor-tooltip">
-                            <a href="#tooltip1">tooltip1</a>
-                            <a href="#tooltip2">tooltip2</a>
-                        </div>
-                    </letteros-module>
-                );
-            }
-        );
+
+function App({ template, letter }) {
+    const [areaData, setAreaData] = useState();
+    const [areaRef, setAreaRef] = useState();
+
+    const handleChangeTxtArea = useCallback((event) => {
+        console.log('Text area change handler: ', { event, areaRef });
+        const updateAreaEvent = new CustomEvent('constructor:update', {
+            detail: event.target.value
+        });
+        window.dispatchEvent(updateAreaEvent)
     }, []);
 
     useEffect(() => {
-        vueApp.current.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            console.log('Vue start listening dragevent:', e);
-        });
-    }, [vueApp]);
+        console.log('App mounted', { template, letter });
+        if (letter) {
+            setAreaData({ letter: JSON.parse(letter), template: JSON.parse(template) });
+        }
+
+    }, [letter, template]);
+    useEffect(() => {
+        return () => { console.log('Textarea changed:', { areaRef });}
+    }, [areaRef])
     return (
-        <section className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <DragObject zoneName={'Перетащи меня '} dragbleData={dragbleData} vueApp={vueApp} ></DragObject>
-            </header>
-            <main style={{ minHeight: '30em' }}>
-                {modules}
-            </main>
-            <article id="vue-app" ref={vueApp}></article>
-        </section>
+        <ConstructorView template={areaData?.template} letter={areaData?.letter} rawRef={ setAreaRef } onUpdate={ handleChangeTxtArea }/>
     );
 }
-
 export default App;
